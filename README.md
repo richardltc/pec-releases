@@ -30,11 +30,17 @@ problem with another node, **ERROR** for something pecd itself cannot do.
 
 ### Accepting connections from other nodes
 
-To let other nodes connect to yours, set `port` in `pecd.toml` and forward
-that port on your router to the computer running pecd. If your internet
-provider uses carrier-grade NAT (the address your router shows differs from
-what a "what is my IP" website shows), incoming connections will not work,
-but your node can still connect out to others.
+pecd accepts connections from other nodes on the testnet port, **48334**,
+unless you set `listen = false`. Other nodes can only reach you if you
+forward that port (TCP) on your router to the computer running pecd. If your
+internet provider uses carrier-grade NAT (the address your router shows
+differs from what a "what is my IP" website shows), incoming connections
+will not work, but your node can still connect out to others.
+
+| Network | Node-to-node port |
+|---|---|
+| Testnet | 48334 |
+| Mainnet (not live yet) | 48333 |
 
 ## Checking your download
 
