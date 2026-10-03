@@ -33,8 +33,11 @@ rename it to `pecd` (`pecd.exe` on Windows) if you like.
 3. Run it once. It creates `pecd.toml` (its settings file) in the same
    folder, with an explanation of every setting, and a `data` folder for the
    list of other nodes it finds.
-4. Fill in `pecd.toml` with the network details shared by the team, then run
-   it again.
+4. pecd joins the testnet straight away, but it needs at least one other
+   node to start from. Add the seed addresses shared by the team to `seeds`
+   under `[peers]` in `pecd.toml` (for example
+   `seeds = ["node.example.org", "203.0.113.7"]`), then run it again. After
+   that it remembers the nodes it has found.
 5. Press **Ctrl+C** to stop it. It saves what it has learned before it exits.
 
 pecd keeps itself up to date: it checks for a new version when it starts and
