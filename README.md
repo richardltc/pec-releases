@@ -11,18 +11,36 @@ written in [Zig](https://ziglang.org), derived from Peercoin.
 
 ## Download
 
-Get the latest version from the [Releases](../../releases) page. Choose the
-file for your system (Linux, Windows or macOS) and unpack it.
+The latest version for your system (these links always point to the newest
+release):
+
+| System | Download |
+|---|---|
+| Linux (Intel/AMD, 64-bit) | [pecd-x86_64-linux](https://github.com/richardltc/pec-releases/releases/latest/download/pecd-x86_64-linux) |
+| Linux (ARM 64-bit, e.g. Raspberry Pi 4/5) | [pecd-aarch64-linux](https://github.com/richardltc/pec-releases/releases/latest/download/pecd-aarch64-linux) |
+| Windows (64-bit) | [pecd-x86_64-windows.exe](https://github.com/richardltc/pec-releases/releases/latest/download/pecd-x86_64-windows.exe) |
+
+macOS is not available yet. Older versions are on the [Releases](../../releases) page.
+
+Each download is the program itself; there is nothing to unpack. You can
+rename it to `pecd` (`pecd.exe` on Windows) if you like.
 
 ## Running pecd
 
-1. Put `pecd` in a folder of its own.
-2. Run it once. It creates `pecd.toml` (its settings file) in the same
+1. Put the downloaded file in a folder of its own.
+2. On Linux, make it runnable: `chmod +x pecd-x86_64-linux` (or the name
+   you gave it).
+3. Run it once. It creates `pecd.toml` (its settings file) in the same
    folder, with an explanation of every setting, and a `data` folder for the
    list of other nodes it finds.
-3. Fill in `pecd.toml` with the network details shared by the team, then run
-   `pecd` again.
-4. Press **Ctrl+C** to stop it. It saves what it has learned before it exits.
+4. Fill in `pecd.toml` with the network details shared by the team, then run
+   it again.
+5. Press **Ctrl+C** to stop it. It saves what it has learned before it exits.
+
+pecd keeps itself up to date: it checks for a new version when it starts and
+every 6 hours, installs it and restarts. The previous version is kept next to
+it with `.old` added to its name. To turn this off, set `auto_update = false`
+under `[update]` in `pecd.toml`.
 
 The log shows what the node is doing in plain English, with the time (UTC)
 and a coloured tag on each line: **INFO** for normal events, **WARN** for a
