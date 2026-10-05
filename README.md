@@ -91,6 +91,18 @@ Addresses start with `tpec1` on the testnet. A new one each time is best,
 but they all belong to the same wallet. You can give it a label, to remember
 who you gave it to: `pec-cli getnewaddress "from Kay"`.
 
+For an address you can give out once and reuse, more privately:
+
+```
+pec-cli getsilentaddress
+```
+
+This is a **Silent Payments** address (`tpecsp1…`). Every payment to it lands
+at a brand-new one-off address that only your wallet can recognise, so
+nobody looking at the chain can see what you received or link the payments
+together. pecd checks each new block for them (an encrypted wallet starts
+checking after you unlock it once with `pec-cli walletpassphrase`).
+
 Other wallet commands:
 
 | Command | What it does |
@@ -196,7 +208,53 @@ To see what happened:
 | `pec-cli gettransaction <txid>` | One transaction: in which block, amounts, addresses and fee |
 | `pec-cli listunspent` | Each of your coins separately, and when mined ones become spendable |
 
-## 5. Looking at the chain
+## 5. Buy a name
+
+You can buy names such as **@kay**, so people can pay you without long
+addresses. Names are 3 to 20 letters, digits and hyphens; capitals don't
+matter (`@Kay` is `@kay`).
+
+```
+pec-cli registername kay
+```
+
+```
+Buy @kay for 10,000 PEC
+  locked with the name: 1 PEC (stays with the name for good)
+  fees:                 0.000562 PEC
+  total:                10,001.000562 PEC (you have 354,880 PEC spendable)
+Buy it? This cannot be undone. [y/N]
+```
+
+Prices on the testnet depend on the length: 3 characters 10,000 PEC,
+4: 5,000, 5: 1,000, 6–7: 500, 8 or more: 100. One PEC stays locked with
+each name for as long as it exists.
+
+Buying takes two steps, done for you: pecd first reserves the name secretly,
+then claims it after the next block (about two minutes in all), so nobody
+who sees your request can take the name first. Check with:
+
+```
+pec-cli listnames
+```
+
+Once it is yours:
+
+| Command | What it does |
+|---|---|
+| `pec-cli send @kay 10` | Pays a name (anyone can do this) |
+| `pec-cli getname kay` | Who owns a name, since when, and its details |
+| `pec-cli updatename kay x @kay_pec` | Adds or changes a detail (here your X account); an empty value `""` removes it |
+| `pec-cli transfername kay tpec1p...` | Gives the name to someone else's address (asks first) |
+
+You can own as many names as you like. A name's details are public, like
+everything on the blockchain, but payments to it are not: a name pays your
+Silent Payments address, so each payment goes to a new one-off address that
+only your wallet recognises. Nobody can see how much @kay has received. Each
+name gets a Silent Payments address of its own, so nobody can tell that two
+of your names belong to the same person.
+
+## 6. Looking at the chain
 
 | Command | Shows |
 |---|---|
@@ -252,6 +310,8 @@ pecd itself cannot do. The same lines go to `data/testnet/pecd.log`.
 | `pecd.toml` | Settings, with explanations |
 | `data/testnet/wallet.dat` | Your wallet (encrypted if you chose a passphrase). Your 24 words are its backup. |
 | `data/testnet/labels.json` | Your address labels (not secret, but not in the 24 words either) |
+| `data/testnet/names.json` | Names you are buying that are waiting to be claimed |
+| `data/testnet/silent.json` | Silent Payments your wallet has found (your 24 words find them again if it is lost) |
 | `data/testnet/blocks/`, `data/testnet/chain/` | The chain. If deleted, pecd downloads it again. |
 | `data/testnet/peers.dat` | Other nodes pecd has found |
 | `data/testnet/pecd.log` | The log (older logs as `pecd.log.1` … `.5`) |
