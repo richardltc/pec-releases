@@ -24,9 +24,10 @@ always point to the newest release):
 
 macOS is not available yet. Older versions are on the [Releases](../../releases) page.
 
-Each download is the program itself; there is nothing to unpack. Rename them
-to `pecd` and `pec-cli` (`pecd.exe` and `pec-cli.exe` on Windows); the
-examples below use those names. On Windows, type commands in Command Prompt
+Each download is the program itself; there is nothing to unpack. Renaming
+them to `pecd` and `pec-cli` (`pecd.exe` and `pec-cli.exe` on Windows) makes
+typing easier, and the examples below use those names; updates work with
+either name. On Windows, type commands in Command Prompt
 or PowerShell, opened in the folder with the programs (in PowerShell, start
 them with `.\`, for example `.\pec-cli status`).
 
@@ -87,7 +88,8 @@ pec-cli getnewaddress
 ```
 
 Addresses start with `tpec1` on the testnet. A new one each time is best,
-but they all belong to the same wallet.
+but they all belong to the same wallet. You can give it a label, to remember
+who you gave it to: `pec-cli getnewaddress "from Kay"`.
 
 Other wallet commands:
 
@@ -95,6 +97,8 @@ Other wallet commands:
 |---|---|
 | `pec-cli walletpassphrase` | Unlocks the wallet (asks for the passphrase) for 5 minutes, so it can send. `pec-cli walletpassphrase 600` unlocks it for 10 minutes. |
 | `pec-cli walletlock` | Locks it again at once. |
+| `pec-cli listaddresses` | Every address the wallet has given out, with its label and the amount at it now. |
+| `pec-cli setlabel <address> "label"` | Labels one of your addresses (an empty label `""` removes it). |
 | `pec-cli getwalletinfo` | Whether it is encrypted or unlocked, and how many addresses it has given out. |
 | `pec-cli restorewallet` | Recreates a wallet from its 24 words (asks for them). |
 
@@ -174,10 +178,10 @@ pec-cli shows exactly what will happen and asks before sending:
 
 ```
 Send 12.5 PEC to tpec1p...
-  fee:                0.000155 PEC
-  change back to you: 3,877.499845 PEC
-  coins used:         1
-  spendable after:    354,867.499845 PEC
+  fee:      0.000155 PEC
+  total:    12.500155 PEC
+  balance:  354,880 PEC now, 354,867.499845 PEC after sending
+            (3,877.499845 PEC of that is spendable again once this payment is in a block, about a minute)
 Send it? Payments cannot be undone. [y/N]
 ```
 
@@ -247,6 +251,7 @@ pecd itself cannot do. The same lines go to `data/testnet/pecd.log`.
 |---|---|
 | `pecd.toml` | Settings, with explanations |
 | `data/testnet/wallet.dat` | Your wallet (encrypted if you chose a passphrase). Your 24 words are its backup. |
+| `data/testnet/labels.json` | Your address labels (not secret, but not in the 24 words either) |
 | `data/testnet/blocks/`, `data/testnet/chain/` | The chain. If deleted, pecd downloads it again. |
 | `data/testnet/peers.dat` | Other nodes pecd has found |
 | `data/testnet/pecd.log` | The log (older logs as `pecd.log.1` … `.5`) |
