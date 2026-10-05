@@ -177,8 +177,9 @@ Things to know:
 pec-cli getbalance
 ```
 
-shows what you can spend now, what is mined but not yet spendable, and what
-is being spent by a payment waiting for a block.
+shows what you can spend now, what is mined but not yet spendable, what is
+leaving in a payment waiting for a block, and what others have sent you that
+is not in a block yet ("arriving").
 
 To pay someone (unlock the wallet first if it has a passphrase):
 
@@ -193,18 +194,18 @@ Send 12.5 PEC to tpec1p...
   fee:      0.000155 PEC
   total:    12.500155 PEC
   balance:  354,880 PEC now, 354,867.499845 PEC after sending
-            (3,877.499845 PEC of that is spendable again once this payment is in a block, about a minute)
 Send it? Payments cannot be undone. [y/N]
 ```
 
-The payment is in the next block, usually within a minute. Your change can be
-spent again once it is.
+The payment is in the next block, usually within a minute. You don't need to
+wait for it: your change can be spent straight away, so you can send another
+payment at once. Coins others send you can be spent once they are in a block.
 
 To see what happened:
 
 | Command | Shows |
 |---|---|
-| `pec-cli listtransactions` | Your last 10 transactions: mined, received and sent (`listtransactions 50` for more) |
+| `pec-cli listtransactions` | Your last 10 transactions: mined, received, sent, and names bought, changed or given away (`listtransactions 50` for more; `listtransactions 10 10` for the 10 before the newest 10). Payments to your names say which name they came through. |
 | `pec-cli gettransaction <txid>` | One transaction: in which block, amounts, addresses and fee |
 | `pec-cli listunspent` | Each of your coins separately, and when mined ones become spendable |
 
@@ -311,6 +312,7 @@ pecd itself cannot do. The same lines go to `data/testnet/pecd.log`.
 | `data/testnet/wallet.dat` | Your wallet (encrypted if you chose a passphrase). Your 24 words are its backup. |
 | `data/testnet/labels.json` | Your address labels (not secret, but not in the 24 words either) |
 | `data/testnet/names.json` | Names you are buying that are waiting to be claimed |
+| `data/testnet/sent.json` | Who you sent each payment to, as you typed it (e.g. `@kay`), for the history |
 | `data/testnet/silent.json` | Silent Payments your wallet has found (your 24 words find them again if it is lost) |
 | `data/testnet/blocks/`, `data/testnet/chain/` | The chain. If deleted, pecd downloads it again. |
 | `data/testnet/peers.dat` | Other nodes pecd has found |
