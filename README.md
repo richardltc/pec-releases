@@ -273,8 +273,9 @@ Once it is yours:
 |---|---|
 | `pec-cli send @kay 10` | Pays a name (anyone can do this) |
 | `pec-cli getname kay` | Who owns a name, since when, and its details |
-| `pec-cli updatename kay x @kay_pec` | Adds or changes a detail (here your X account); an empty value `""` removes it |
-| `pec-cli transfername kay tpec1p...` | Gives the name to someone else's address (asks first) |
+| `pec-cli setnamedetail kay x @kay_pec` | Sets one of the name's details (here your X account); an empty value `""` removes it |
+| `pec-cli setnamedetail kay pay new` | Gives the name a new private payment address of its own |
+| `pec-cli givename kay tpec1p...` | Gives the name to someone else (asks first; see below) |
 
 You can own as many names as you like. A name's details are public, like
 everything on the blockchain, but payments to it are not: a name pays your
@@ -282,6 +283,37 @@ Silent Payments address, so each payment goes to a new one-off address that
 only your wallet recognises. Nobody can see how much @kay has received. Each
 name gets a Silent Payments address of its own, so nobody can tell that two
 of your names belong to the same person.
+
+### Give a name to someone
+
+1. **The new owner** gets an address from their own wallet and sends it to
+   you:
+
+   ```
+   pec-cli getnewaddress
+   ```
+
+   (An ordinary `tpec1…` address. A `tpecsp1…` Silent Payments address or an
+   @name cannot receive a name.)
+2. **You** give the name to that address:
+
+   ```
+   pec-cli givename kay tpec1p...
+   ```
+
+   pec-cli shows what will happen and asks first. The 1 PEC locked with the
+   name goes with it, its other details (X, Telegram…) stay, and you pay a
+   0.0004 PEC fee. This cannot be undone.
+3. **The new owner**, once it is in a block (about a minute; `pec-cli
+   listnames` shows it), sets where payments to the name go:
+
+   ```
+   pec-cli setnamedetail kay pay new
+   ```
+
+   Until then, payments to @kay are refused: your payment address was
+   removed from the name when you gave it away, so nothing sent to @kay can
+   reach you by mistake.
 
 ## 6. Looking at the chain
 
@@ -292,7 +324,7 @@ of your names belong to the same person.
 | `pec-cli getinfo` | Version, network, connections, uptime |
 | `pec-cli getpeerinfo` | The nodes you are connected to |
 | `pec-cli getmempoolinfo` | Payments waiting for a block |
-| `pec-cli help` | Every command |
+| `pec-cli help` | Every command, grouped by topic (wallet, payments, names, mining…) |
 
 Only programs on the same computer can send these commands. pecd writes a
 fresh password to `data/testnet/.cookie` each time it starts, and pec-cli
