@@ -170,6 +170,34 @@ Things to know:
   ```
 
   The rewards go to your home wallet, and the server holds no keys.
+- **Mining with several computers (pec-miner):** run pecd on one computer
+  and `pec-miner` on the others; they all mine through that pecd, into its
+  wallet (or its `mining_address`). On the computer with pecd, turn the
+  mining port on in `pecd.toml` and restart pecd:
+
+  ```
+  [mining]
+  server = true
+  server_password = "choose a long password"
+  ```
+
+  On each other computer (pec-miner is in the release downloads):
+
+  ```
+  pec-miner --node 192.168.1.20
+  ```
+
+  with pecd's local network address; it asks for the password. The mining
+  port (48337) only hands out blocks to mine, never wallet commands, but it
+  is not encrypted: keep it on your home network or a VPN, not open to the
+  internet. On pecd's own computer, `pec-miner` in pecd's folder needs no
+  options (it uses the command port and the `.cookie` password).
+
+  If pec-miner says pecd does not answer, the computer with pecd may be
+  blocking the port. Windows asks whether to allow pecd the first time the
+  mining port is on: allow it for private networks. On Linux with a firewall,
+  open it, for example `sudo ufw allow 48337/tcp` or
+  `sudo firewall-cmd --add-port=48337/tcp --permanent && sudo firewall-cmd --reload`.
 
 ## 4. Send coins
 
