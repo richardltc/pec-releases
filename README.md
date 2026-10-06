@@ -9,6 +9,41 @@ Downloads of **pecd**, the PEC node, and a guide to running it, mining and sendi
 PEC ("Participate Engage Contribute", working name) is a new cryptocurrency
 written in [Zig](https://ziglang.org), derived from Peercoin.
 
+## The easy way: PEC Wallet
+
+**PEC Wallet** is a desktop wallet with windows and buttons: your balance,
+sending and receiving, transactions, names and mining. It runs the node for
+you. Download the zip for your system, unzip it into a folder of its own and
+start **pec-gui** (`pec-gui.exe` on Windows):
+
+| System | Download |
+|---|---|
+| Windows (64-bit) | [pec-gui-x86_64-windows.zip](https://github.com/richardltc/pec-releases/releases/latest/download/pec-gui-x86_64-windows.zip) |
+| Linux (Intel/AMD, 64-bit) | [pec-gui-x86_64-linux.zip](https://github.com/richardltc/pec-releases/releases/latest/download/pec-gui-x86_64-linux.zip) |
+| Linux (ARM 64-bit) | [pec-gui-aarch64-linux.zip](https://github.com/richardltc/pec-releases/releases/latest/download/pec-gui-aarch64-linux.zip) |
+
+The zip holds the wallet, the graphics library it needs, pecd and pec-cli;
+keep them together. The first time, the wallet helps you create a wallet
+(write down the 24 recovery words it shows you) or restore one. It updates
+itself, and pecd, when they start. On Windows, if nothing happens when you
+start it, install Microsoft's
+[Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+(see `README.txt` in the zip). Linux needs glibc 2.35 or newer (Ubuntu 22.04,
+Debian 12, Fedora 36 or later).
+
+**Wallet…** (on the Home page, beside your balance) unlocks or locks the
+wallet, and can **replace** it with a different one: type `REPLACE` to
+confirm, and the wallet stops pecd, moves the wallet's files into a new
+folder, `data/testnet/replaced-wallets/wallet-<date>-<time>-UTC`, and starts
+pecd again with no wallet, so you can create a new one or restore one from
+its recovery words. Nothing is deleted: to go back, move the files from that
+folder back into `data/testnet` while pecd is stopped. Make sure you have the
+old wallet's recovery words first. It is refused while one of your names is
+waiting to be claimed (wait for the next block).
+
+The rest of this guide uses the commands (`pec-cli`), which work alongside
+the wallet too.
+
 ## Download
 
 There are two programs. **pecd** is the node: it keeps a copy of the chain,
@@ -193,6 +228,10 @@ Things to know:
   internet. On pecd's own computer, `pec-miner` in pecd's folder needs no
   options (it uses the command port and the `.cookie` password).
 
+  pec-miner updates itself like pecd: when it starts, it installs a new
+  version if there is one and restarts. A pec-miner in pecd's folder is also
+  updated when pecd updates. (`--no-update` turns this off.)
+
   If pec-miner says pecd does not answer, the computer with pecd may be
   blocking the port. Windows asks whether to allow pecd the first time the
   mining port is on: allow it for private networks. On Linux with a firewall,
@@ -303,7 +342,9 @@ of your names belong to the same person.
 
    pec-cli shows what will happen and asks first. The 1 PEC locked with the
    name goes with it, its other details (X, Telegram…) stay, and you pay a
-   0.0004 PEC fee. This cannot be undone.
+   0.0004 PEC fee. This cannot be undone. Until it is in a block, your
+   `pec-cli listnames` shows the name as "being given away"; then it is
+   gone from your list. (In PEC Wallet: Names tab, the same.)
 3. **The new owner**, once it is in a block (about a minute; `pec-cli
    listnames` shows it), sets where payments to the name go:
 
