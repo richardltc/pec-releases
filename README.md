@@ -34,10 +34,11 @@ Debian 12, Fedora 36 or later).
 **Wallet…** (on the Home page, beside your balance) unlocks or locks the
 wallet, and can **replace** it with a different one: type `REPLACE` to
 confirm, and the wallet stops pecd, moves the wallet's files into a new
-folder, `data/testnet/replaced-wallets/wallet-<date>-<time>-UTC`, and starts
+folder, `testnet/replaced-wallets/wallet-<date>-<time>-UTC` in the data
+folder (see [What is in the data folder](#what-is-in-the-data-folder)), and starts
 pecd again with no wallet, so you can create a new one or restore one from
 its recovery words. Nothing is deleted: to go back, move the files from that
-folder back into `data/testnet` while pecd is stopped. Make sure you have the
+folder back into `testnet` while pecd is stopped. Make sure you have the
 old wallet's recovery words first. It is refused while one of your names is
 waiting to be claimed (wait for the next block).
 
@@ -68,12 +69,13 @@ them with `.\`, for example `.\pec-cli status`).
 
 ## 1. Start your node
 
-1. Put **both** programs in a folder of their own. pecd keeps its settings
-   and data next to itself, and pec-cli must be in the same folder.
+1. Put **both** programs in a folder of their own (they update themselves
+   there).
 2. On Linux, make them runnable: `chmod +x pecd pec-cli`.
-3. Run `pecd`. The first time, it creates:
+3. Run `pecd`. The first time, it creates PEC's **data folder** (`~/.peccoin`
+   on Linux; see [What is in the data folder](#what-is-in-the-data-folder)) with:
    - `pecd.toml`, its settings, with an explanation of every setting;
-   - a `data/testnet` folder, with the chain, your wallet (once you make one) and its log.
+   - a `testnet` folder, with the chain, your wallet (once you make one) and its log.
 4. It connects to the testnet by itself and downloads the chain. The log
    ends with a line like:
 
@@ -103,7 +105,7 @@ Updates   installed automatically when pecd starts
 
 ## 2. Make a wallet
 
-Your wallet lives inside pecd, in `data/testnet/wallet.dat`.
+Your wallet lives inside pecd, in `testnet/wallet.dat` in the data folder.
 
 ```
 pec-cli createwallet
@@ -225,8 +227,8 @@ Things to know:
   with pecd's local network address; it asks for the password. The mining
   port (48337) only hands out blocks to mine, never wallet commands, but it
   is not encrypted: keep it on your home network or a VPN, not open to the
-  internet. On pecd's own computer, `pec-miner` in pecd's folder needs no
-  options (it uses the command port and the `.cookie` password).
+  internet. On pecd's own computer, `pec-miner` needs no options (it uses
+  the command port and the `.cookie` password in the data folder).
 
   pec-miner updates itself like pecd: when it starts, it installs a new
   version if there is one and restarts. A pec-miner in pecd's folder is also
@@ -315,6 +317,8 @@ Once it is yours:
 | `pec-cli setnamedetail kay x @kay_pec` | Sets one of the name's details (here your X account); an empty value `""` removes it |
 | `pec-cli setnamedetail kay pay new` | Gives the name a new private payment address of its own |
 | `pec-cli givename kay tpec1p...` | Gives the name to someone else (asks first; see below) |
+| `pec-cli buyname kay 5000` | Offers to buy someone's name (see below) |
+| `pec-cli sellname <offer>` | Accepts an offer for one of your names (see below) |
 
 You can own as many names as you like. A name's details are public, like
 everything on the blockchain, but payments to it are not: a name pays your
@@ -356,6 +360,50 @@ of your names belong to the same person.
    removed from the name when you gave it away, so nothing sent to @kay can
    reach you by mistake.
 
+### Buy or sell a name
+
+A name can be sold for PEC. The name and the payment move together in one
+transaction, so either both happen or neither does: the buyer cannot lose
+their coins without getting the name, and the seller cannot lose the name
+without being paid.
+
+1. **The buyer** makes an offer, e.g. 5,000 PEC for @kay:
+
+   ```
+   pec-cli buyname kay 5000
+   ```
+
+   pec-cli shows the price and the fee (the buyer pays it) and asks first.
+   If your wallet is locked it asks for your passphrase, signs, and stays
+   locked. Nothing is paid yet: you get a long line of text, the **offer**.
+   Send it to the owner of @kay (by chat or email; it holds no secrets).
+   The coins in the offer are kept aside for a day.
+2. **The seller** checks the offer and accepts it:
+
+   ```
+   pec-cli sellname <the offer text>
+   ```
+
+   pec-cli shows who gets the name and what you receive, and asks first.
+   If the offer cannot be used (the buyer's coins were spent, or it was
+   changed), it says so and nothing happens.
+3. Once it is in a block (about a minute), the name is the buyer's and the
+   payment is the seller's. **The buyer** then sets where payments to the
+   name go: `pec-cli setnamedetail kay pay new`. (The seller's details,
+   such as X or Telegram, are not passed on.)
+
+**In PEC Wallet** (Names tab): look up the name, type your price and
+press **Make an offer…**; the offer text is shown with a copy button. To
+sell, paste an offer into **Sell a name** and press **Check offer…**. An
+offer you made appears in your names list with **Cancel offer…**. If the
+wallet is locked, each of these asks for your passphrase, signs, and
+leaves it locked.
+
+**Changed your mind?** As long as the seller has not accepted, run
+`pec-cli cancelnameoffer kay`. It moves the offer's coins back to your
+wallet (a small fee), so the offer can never be used. Until you do, the
+seller can still accept it, even after the coins stop being kept aside.
+
 ## 6. Looking at the chain
 
 | Command | Shows |
@@ -368,8 +416,8 @@ of your names belong to the same person.
 | `pec-cli help` | Every command, grouped by topic (wallet, payments, names, mining…) |
 
 Only programs on the same computer can send these commands. pecd writes a
-fresh password to `data/testnet/.cookie` each time it starts, and pec-cli
-reads it from there, so nothing needs setting up.
+fresh password to `testnet/.cookie` in the data folder each time it starts,
+and pec-cli reads it from there, so nothing needs setting up.
 
 ## Helping the network
 
@@ -403,21 +451,35 @@ To turn this off, set `auto_update = false` under `[update]` in `pecd.toml`.
 pecd's window shows what it is doing in plain English, with the time (UTC)
 and a coloured tag on each line: **INFO** for normal events, **WARN** for a
 problem with another node or something to check, **ERROR** for something
-pecd itself cannot do. The same lines go to `data/testnet/pecd.log`.
+pecd itself cannot do. The same lines go to `testnet/pecd.log` in the data folder.
 
-## What is in the folder
+## What is in the data folder
+
+pecd keeps its settings and data in your user's own folder, apart from the
+programs, so updates never touch it:
+
+| System | Data folder |
+|---|---|
+| Linux | `~/.peccoin` |
+| macOS | `~/Library/Application Support/PECCoin` |
+| Windows | `%LOCALAPPDATA%\PECCoin` (`C:\Users\<you>\AppData\Local\PECCoin`) |
+
+To use another folder (for example a bigger disk), start pecd with
+`--datadir FOLDER`, and give pec-cli, pec-miner and PEC Wallet the same
+`--datadir FOLDER`. Only you can open the folder: it holds your wallet.
 
 | Path | What it is |
 |---|---|
 | `pecd.toml` | Settings, with explanations |
-| `data/testnet/wallet.dat` | Your wallet (encrypted if you chose a passphrase). Your 24 words are its backup. |
-| `data/testnet/labels.json` | Your address labels (not secret, but not in the 24 words either) |
-| `data/testnet/names.json` | Names you are buying that are waiting to be claimed |
-| `data/testnet/sent.json` | Who you sent each payment to, as you typed it (e.g. `@kay`), for the history |
-| `data/testnet/silent.json` | Silent Payments your wallet has found (your 24 words find them again if it is lost) |
-| `data/testnet/blocks/`, `data/testnet/chain/` | The chain. If deleted, pecd downloads it again. |
-| `data/testnet/peers.dat` | Other nodes pecd has found |
-| `data/testnet/pecd.log` | The log (older logs as `pecd.log.1` … `.5`) |
+| `testnet/wallet.dat` | Your wallet (encrypted if you chose a passphrase). Your 24 words are its backup. |
+| `testnet/labels.json` | Your address labels (not secret, but not in the 24 words either) |
+| `testnet/names.json` | Names you are buying that are waiting to be claimed |
+| `testnet/offers.json` | Your offers to buy names from other people |
+| `testnet/sent.json` | Who you sent each payment to, as you typed it (e.g. `@kay`), for the history |
+| `testnet/silent.json` | Silent Payments your wallet has found (your 24 words find them again if it is lost) |
+| `testnet/blocks/`, `testnet/chain/` | The chain. If deleted, pecd downloads it again. |
+| `testnet/peers.dat` | Other nodes pecd has found |
+| `testnet/pecd.log` | The log (older logs as `pecd.log.1` … `.5`) |
 
 ## Checking your download
 
