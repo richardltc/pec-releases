@@ -126,7 +126,10 @@ pec-cli getnewaddress
 
 Addresses start with `tpec1` on the testnet. A new one each time is best,
 but they all belong to the same wallet. You can give it a label, to remember
-who you gave it to: `pec-cli getnewaddress "from Kay"`.
+who you gave it to: `pec-cli getnewaddress "from Kay"`. `pec-cli
+listaddresses` shows every address you have made, to give one out again. In
+PEC Wallet, the Receive tab lists them, newest first, each with a copy button
+and its QR code.
 
 For an address you can give out once and reuse, more privately:
 
@@ -139,11 +142,15 @@ at a brand-new one-off address that only your wallet can recognise, so
 nobody looking at the chain can see what you received or link the payments
 together. pecd checks each new block for them (an encrypted wallet starts
 checking after you unlock it once with `pec-cli walletpassphrase`).
+PEC Wallet does not offer this address on its own: there, a name (see Names)
+is the reusable address, as each name has a Silent Payments address of its
+own. It can still send to one, and payments to any you gave out still arrive.
 
 Other wallet commands:
 
 | Command | What it does |
 |---|---|
+| `pec-cli getrecoverywords` | Shows your 24 recovery words again, to write down as a backup (asks first, and for your passphrase). Anyone who sees them can take your coins, so make sure nobody can see your screen. In PEC Wallet: Wallet… → Back up wallet. |
 | `pec-cli walletpassphrase` | Unlocks the wallet (asks for the passphrase) for 5 minutes, so it can send. `pec-cli walletpassphrase 600` unlocks it for 10 minutes. |
 | `pec-cli walletlock` | Locks it again at once. |
 | `pec-cli listaddresses` | Every address the wallet has given out, with its label and the amount at it now. |
@@ -157,7 +164,8 @@ Mining uses your computer's processor to make new blocks. Each block you
 find pays you its reward: on the testnet now **3,890 PEC**, falling slowly
 over the years.
 
-1. Make a wallet first (step 2): the rewards go to a new address from it.
+1. Make a wallet first (step 2): the rewards go to its mining address, one
+   address labelled "mining" that stays the same every time you mine.
 2. Start mining:
 
    ```
@@ -315,7 +323,7 @@ Once it is yours:
 | `pec-cli send @kay 10` | Pays a name (anyone can do this) |
 | `pec-cli getname kay` | Who owns a name, since when, and its details |
 | `pec-cli setnamedetail kay x @kay_pec` | Sets one of the name's details (here your X account); an empty value `""` removes it |
-| `pec-cli setnamedetail kay pay new` | Gives the name a new private payment address of its own |
+| `pec-cli setnamedetail kay pay new` | Gives the name a new payment address (Silent Payments) of its own |
 | `pec-cli givename kay tpec1p...` | Gives the name to someone else (asks first; see below) |
 | `pec-cli buyname kay 5000` | Offers to buy someone's name (see below) |
 | `pec-cli sellname <offer>` | Accepts an offer for one of your names (see below) |
