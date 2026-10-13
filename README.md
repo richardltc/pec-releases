@@ -469,15 +469,29 @@ seller can still accept it, even after the coins stop being kept aside.
 | Command | Shows |
 |---|---|
 | `pec-cli getblockcount` | The latest block's number |
+| `pec-cli getblockhash 1234` | The id of the block at that height |
 | `pec-cli getblock 1234` | A block: when it was found, whether it was mined or staked and by whom, its reward and transactions |
 | `pec-cli getinfo` | Version, network, connections, uptime |
 | `pec-cli getpeerinfo` | The nodes you are connected to |
+| `pec-cli getnodeaddresses 5` | Up to that many addresses of nodes yours knows about (default 10, at most 1000) |
 | `pec-cli getmempoolinfo` | Payments waiting for a block |
+| `pec-cli getrawmempool` | The ids of the payments waiting for a block, oldest first |
 | `pec-cli help` | Every command, grouped by topic (wallet, payments, names, mining…) |
 
 Only programs on the same computer can send these commands. pecd writes a
 fresh password to `testnet/.cookie` in the data folder each time it starts,
 and pec-cli reads it from there, so nothing needs setting up.
+
+### Advanced and mining commands
+
+Most people never need these; they are for programs and scripts.
+
+| Command | What it does |
+|---|---|
+| `pec-cli signrawtransaction HEX INPUTS` | Signs the inputs of a transaction (given as hex) that spend this wallet's coins. `INPUTS` lists, in input order, the output each one spends: `[{"txid","vout","scriptPubKey","value"}, ...]`, with the value in base units. Every signed input is checked before the result is returned. The wallet must be unlocked. |
+| `pec-cli sendrawtransaction HEX` | Checks a transaction (given as hex) and, if it is acceptable, puts it in the memory pool and sends it to other nodes. Shows its id. |
+| `pec-cli getblocktemplate [ADDRESS]` | A block to mine: header, target, RandomX key and the whole block. The reward goes to ADDRESS if given, else to the mining address in `pecd.toml`, else to the node's wallet. pec-miner uses this through the mining port; you do not normally run it yourself. |
+| `pec-cli submitblock HEX` | Hands in a mined block (from `getblocktemplate`, with a nonce that meets the target). pec-miner does this for you. |
 
 ## Helping the network
 
