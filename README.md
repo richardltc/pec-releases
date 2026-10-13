@@ -12,7 +12,7 @@ written in [Zig](https://ziglang.org), derived from Peercoin.
 ## The easy way: PEC Wallet
 
 **PEC Wallet** is a desktop wallet with windows and buttons: your balance,
-sending and receiving, transactions, names and mining. It runs the node for
+sending and receiving, transactions, names, mining and staking. It runs the node for
 you. Download the zip for your system, unzip it into a folder of its own and
 start **pec-gui** (`pec-gui.exe` on Windows):
 
@@ -199,8 +199,11 @@ Things to know:
   slower. The log says which.
 - **Threads:** pecd chooses how many processor threads to use (one per 2 MB
   of the processor's cache) and runs them at low priority, so the computer
-  stays usable. To choose yourself: `pec-cli setmining on 2`, or
-  `threads = 2` under `[mining]`.
+  stays usable. To choose yourself: `pec-cli setmining on 2` (while mining,
+  this restarts it with 2 threads), or `threads = 2` under `[mining]`. In PEC
+  Wallet, the Mining card has a **Threads** box for this. Fewer threads find
+  blocks less often but leave more of the computer free, a good way to help
+  the network without slowing your machine.
 - **Mining on a server:** you do not need a wallet there. Make the wallet at
   home, get an address with `pec-cli getnewaddress`, and put it on the server
   in `pecd.toml`:
@@ -248,7 +251,56 @@ Things to know:
   open it, for example `sudo ufw allow 48337/tcp` or
   `sudo firewall-cmd --add-port=48337/tcp --permanent && sudo firewall-cmd --reload`.
 
-## 4. Send coins
+## 4. Stake
+
+PEC starts as proof of work (you mine). After about a month, **staking
+begins as well, and mining carries on**: from then on blocks are made in
+two ways side by side, mined by computers and staked by coins. Each way aims
+at one block every two minutes, so there is a block a minute in all. The
+miners' share of the new coins starts at 70% and slides down to 30% over six
+months; stakers get the rest. On the test network it starts at **block 1,000**.
+
+**What you need**
+
+- **Coins that can stake:** in a **Taproot** address (the ones starting
+  `tpec1p`, which new wallets make by default, mining rewards included) and
+  at least **6 hours old**. Coins locked in a name cannot stake.
+- **PEC Wallet or pecd running.** Coins stake while it runs. They stay yours
+  and spendable at all times; only spending a coin starts its age again.
+  Staking itself does not.
+- **An unlocked wallet, if it has a passphrase.** In PEC Wallet, the Home
+  page shows a **Staking** card with **Unlock for staking…**, which unlocks
+  it "for staking only" for up to **30 days**: it can stake, but can
+  never send your coins. Anyone who can use your computer while it is running
+  could use that unlock to stake, but not to take your coins; the wallet
+  locks itself again when the time runs out. With pec-cli:
+  `pec-cli walletpassphrase 2592000 true` (30 days; the most). A wallet that
+  can send is unlocked for a day at most.
+- **A correct clock.** A staked block may be at most 15 seconds ahead of
+  your computer's clock, so keep automatic time on.
+
+**How it works.** Every 4 seconds, each coin gets a chance to make the next
+block. More coins mean more chances, and a coin's weight grows with its age:
+a coin that has just reached 6 hours has 1% of a full coin's weight, about 30%
+after a day, half after two, nine tenths after a week, and it stops
+growing at 90 days. The wallet makes, signs and sends a winning block by
+itself. The reward (3,890 PEC at first) is paid to the same address, and can
+be spent after 100 blocks, as mined coins can. The coin that staked comes
+back at once.
+
+**Watching it**
+
+- PEC Wallet: the Home page's Staking card shows the wallet's status in
+  words, the coins taking part and blocks staked. The Transactions list
+  shows rewards as **staked**.
+- `pec-cli getstakinginfo`: the same, and why not if it is not staking (not
+  yet on this network, locked, no coin old enough).
+- `pec-cli setstaking off` (or `on`) turns staking on or off while pecd runs;
+  `stake = false` under `[staking]` in `pecd.toml` turns it off at start.
+- `pec-cli getblock 8950` shows whether a block was mined or staked, who
+  staked it.
+
+## 5. Send coins
 
 ```
 pec-cli getbalance
@@ -286,7 +338,7 @@ To see what happened:
 | `pec-cli gettransaction <txid>` | One transaction: in which block, amounts, addresses and fee |
 | `pec-cli listunspent` | Each of your coins separately, and when mined ones become spendable |
 
-## 5. Buy a name
+## 6. Buy a name
 
 You can buy names such as **@kay**, so people can pay you without long
 addresses. Names are 3 to 20 letters, digits and hyphens; capitals don't
@@ -412,12 +464,12 @@ leaves it locked.
 wallet (a small fee), so the offer can never be used. Until you do, the
 seller can still accept it, even after the coins stop being kept aside.
 
-## 6. Looking at the chain
+## 7. Looking at the chain
 
 | Command | Shows |
 |---|---|
 | `pec-cli getblockcount` | The latest block's number |
-| `pec-cli getblock 1234` | A block: when it was found, who mined it, its reward and transactions |
+| `pec-cli getblock 1234` | A block: when it was found, whether it was mined or staked and by whom, its reward and transactions |
 | `pec-cli getinfo` | Version, network, connections, uptime |
 | `pec-cli getpeerinfo` | The nodes you are connected to |
 | `pec-cli getmempoolinfo` | Payments waiting for a block |
@@ -453,6 +505,10 @@ but only says in its log that a new version is out; it is installed the next
 time pecd starts, so a running node (or its mining) is never interrupted.
 The previous versions are kept next to them with `.old` added to their names.
 To turn this off, set `auto_update = false` under `[update]` in `pecd.toml`.
+
+## Repairing a node on a wrong chain
+
+Rare, and only after a long network split (more than 1,000 blocks, about 17 hours): pecd refuses a chain that forks that far back, so a node that ended up on the shorter side stays there, and its log says so. Releases also carry **checkpoints**, blocks every node must have; on start, a node that lacks one moves back by itself. If that does not help: with a node you trust, find the first block where the two chains differ (`pec-cli getblock HEIGHT` on both; the ids differ), then on your node run `pec-cli invalidateblock BLOCKID` with your node's id for that block. pecd moves back and follows the other chain. `pec-cli reconsiderblock BLOCKID` undoes it. Your wallet and coins are not touched.
 
 ## The log
 
