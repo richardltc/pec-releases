@@ -493,6 +493,43 @@ Most people never need these; they are for programs and scripts.
 | `pec-cli getblocktemplate [ADDRESS]` | A block to mine: header, target, RandomX key and the whole block. The reward goes to ADDRESS if given, else to the mining address in `pecd.toml`, else to the node's wallet. pec-miner uses this through the mining port; you do not normally run it yourself. |
 | `pec-cli submitblock HEX` | Hands in a mined block (from `getblocktemplate`, with a nonce that meets the target). pec-miner does this for you. |
 
+### For block explorers
+
+Most people never need these. They are for someone building a block explorer or another service that reads the chain. The commands follow Bitcoin Core's, with the same names and answer shapes (amounts are numbers in coins, ids are the usual reversed hex), so tools written for other coins are easy to adapt. All are read-only. `pec-cli help` lists them under "For explorers".
+
+| Command | What it does |
+|---|---|
+| `pec-cli getbestblockhash` | The id of the latest block |
+| `pec-cli getblockchaininfo` | Network, number of blocks and headers, difficulty, chain work, whether the node is still catching up |
+| `pec-cli getblockheader HASH [false]` | A block's header (the raw hex with `false`) |
+| `pec-cli getblock HASH_OR_HEIGHT 0\|1\|2` | With a number after it: raw hex (0), block with transaction ids (1) or with full transactions (2). Without it, the short form above |
+| `pec-cli getblockstats HEIGHT` | Figures for one block: transactions, size, fees, reward, who made it |
+| `pec-cli getstakingstats [BLOCKS]` | Mined and staked blocks over the last BLOCKS (default 720): counts, share, average spacing, next targets and rewards |
+| `pec-cli getrawtransaction TXID [0\|1\|2]` | A transaction: hex (0), decoded (1) or decoded with the coins it spends and its fee (2) |
+| `pec-cli getdifficulty`, `getnetworkhashps [BLOCKS]` | Current difficulty; estimated hashes per second over the last BLOCKS (default 120) |
+| `pec-cli getchaintips` | The end of the main chain and of any side branches |
+| `pec-cli gettxoutsetinfo` | Totals over all unspent coins, including the coin supply. Scans everything, so it takes a moment: call it rarely |
+| `pec-cli getmempoolentry TXID`, `getrawmempool true` | One waiting payment, or all of them with fee and size |
+| `pec-cli validateaddress ADDRESS` | Whether an address is valid, and its script |
+| `pec-cli getaddressbalance ADDRESS` | What an address holds: spendable, still maturing, and received in total |
+| `pec-cli getaddressutxos ADDRESS` | The unspent coins at an address |
+| `pec-cli getaddresstxids ADDRESS`, `getaddressdeltas ADDRESS` | The transactions touching an address, and the change each made, oldest first. Instead of an address you can give `{"addresses":[…],"start":N,"end":N,"skip":N,"limit":N}` to take a page |
+| `pec-cli listallnames [AFTER] [LIMIT]` | Not on the explorer port. Every registered name, a page at a time (default 100, at most 500), with the total and what to give as AFTER for the next page. Names and the block they were registered in only; `getname` gives one name's owner and details |
+
+Address lookups work for any address, not just your own. The answers are the same as on the normal port, but a service should not use that port: it holds your wallet's password.
+
+**A separate port for the explorer.** To let a service read the chain without ever holding the full password, give it its own read-only port in `pecd.toml`:
+
+```toml
+[explorer]
+server = true
+server_password = "at least 12 characters"
+server_port = 12345   # your choice: no standard port is decided
+# server_public = true   # default: this computer only
+```
+
+The service signs in as user `explorer`. This port offers only the read-only commands above (plus `getblockcount`, `getblockhash`, and `gettransaction`), but no command about names: not `listallnames`, not `getname`; wallet, mining, peer and `stop` commands do not exist on it. It is not encrypted, so for anything public put a web server with HTTPS and rate limits in front, and run that node with `wallet = false`.
+
 ## Helping the network
 
 Your node always connects out to others. It can also accept connections from
