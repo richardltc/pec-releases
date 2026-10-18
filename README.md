@@ -326,6 +326,23 @@ Send 12.5 PEC to tpec1p...
 Send it? Payments cannot be undone. [y/N]
 ```
 
+Coins you have held for a while build up staking age (see Stake). Spending a
+coin starts its age again from zero, so it stakes less often for a while. If a
+payment would spend such coins, pec-cli says so and, when younger coins would
+do instead, asks first:
+
+```
+This spends 1 coin that has built up staking age (as much staking weight as
+3,890 PEC of fully aged coins). Spending starts the age again from zero.
+Spending younger coins instead loses only 0.4 PEC of weight
+  (fee 0.000213 PEC, total 12.500213 PEC, 354,867.499787 PEC after sending).
+Spend younger coins instead and keep your aged coins? [Y/n]
+```
+
+PEC Wallet shows the same warning and a "Keep my aged coins" box when sending.
+Without a terminal, `pec-cli send ADDRESS AMOUNT true null true` sends with
+younger coins first.
+
 The payment is in the next block, usually within a minute. You don't need to
 wait for it: your change can be spent straight away, so you can send another
 payment at once. Coins others send you can be spent once they are in a block.
@@ -336,7 +353,7 @@ To see what happened:
 |---|---|
 | `pec-cli listtransactions` | Your last 10 transactions: mined, received, sent, and names bought, changed or given away (`listtransactions 50` for more; `listtransactions 10 10` for the 10 before the newest 10). Payments to your names say which name they came through. |
 | `pec-cli gettransaction <txid>` | One transaction: in which block, amounts, addresses and fee |
-| `pec-cli listunspent` | Each of your coins separately, and when mined ones become spendable |
+| `pec-cli listunspent` | Each of your coins separately, when mined ones become spendable, and how much staking weight each has built up (PEC Wallet: Coins tab) |
 
 ## 6. Buy a name
 
