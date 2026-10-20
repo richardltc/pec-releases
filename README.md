@@ -6,12 +6,12 @@ Downloads of **pecd**, the PEC node, and a guide to running it, mining and sendi
 > the **testnet**: its coins have **no value**. Expect frequent updates and
 > occasional resets, when the chain starts again from nothing.
 
-PEC ("Participate Engage Contribute", working name) is a new cryptocurrency
+PEC (Pectara; "Participate Engage Contribute" is its philosophy) is a new cryptocurrency
 written in [Zig](https://ziglang.org), derived from Peercoin.
 
-## The easy way: PEC Wallet
+## The easy way: Pectara Wallet
 
-**PEC Wallet** is a desktop wallet with windows and buttons: your balance,
+**Pectara Wallet** is a desktop wallet with windows and buttons: your balance,
 sending and receiving, transactions, names, mining and staking. It runs the node for
 you. Download the zip for your system, unzip it into a folder of its own and
 start **pec-gui** (`pec-gui.exe` on Windows):
@@ -128,7 +128,7 @@ Addresses start with `tpec1` on the testnet. A new one each time is best,
 but they all belong to the same wallet. You can give it a label, to remember
 who you gave it to: `pec-cli getnewaddress "from Kay"`. `pec-cli
 listaddresses` shows every address you have made, to give one out again. In
-PEC Wallet, the Receive tab lists them, newest first, each with a copy button
+Pectara Wallet, the Receive tab lists them, newest first, each with a copy button
 and its QR code.
 
 For an address you can give out once and reuse, more privately:
@@ -142,7 +142,7 @@ at a brand-new one-off address that only your wallet can recognise, so
 nobody looking at the chain can see what you received or link the payments
 together. pecd checks each new block for them (an encrypted wallet starts
 checking after you unlock it once with `pec-cli walletpassphrase`).
-PEC Wallet does not offer this address on its own: there, a name (see Names)
+Pectara Wallet does not offer this address on its own: there, a name (see Names)
 is the reusable address, as each name has a Silent Payments address of its
 own. It can still send to one, and payments to any you gave out still arrive.
 
@@ -150,7 +150,7 @@ Other wallet commands:
 
 | Command | What it does |
 |---|---|
-| `pec-cli getrecoverywords` | Shows your 24 recovery words again, to write down as a backup (asks first, and for your passphrase). Anyone who sees them can take your coins, so make sure nobody can see your screen. In PEC Wallet: Wallet… → Back up wallet. |
+| `pec-cli getrecoverywords` | Shows your 24 recovery words again, to write down as a backup (asks first, and for your passphrase). Anyone who sees them can take your coins, so make sure nobody can see your screen. In Pectara Wallet: Wallet… → Back up wallet. |
 | `pec-cli walletpassphrase` | Unlocks the wallet (asks for the passphrase) for 5 minutes, so it can send. `pec-cli walletpassphrase 600` unlocks it for 10 minutes. |
 | `pec-cli walletlock` | Locks it again at once. |
 | `pec-cli listaddresses` | Every address the wallet has given out, with its label and the amount at it now. |
@@ -265,10 +265,10 @@ months; stakers get the rest. On the test network it starts at **block 1,000**.
 - **Coins that can stake:** in a **Taproot** address (the ones starting
   `tpec1p`, which new wallets make by default, mining rewards included) and
   at least **6 hours old**. Coins locked in a name cannot stake.
-- **PEC Wallet or pecd running.** Coins stake while it runs. They stay yours
+- **Pectara Wallet or pecd running.** Coins stake while it runs. They stay yours
   and spendable at all times; only spending a coin starts its age again.
   Staking itself does not.
-- **An unlocked wallet, if it has a passphrase.** In PEC Wallet, the Home
+- **An unlocked wallet, if it has a passphrase.** In Pectara Wallet, the Home
   page shows a **Staking** card with **Unlock for staking…**, which unlocks
   it "for staking only" for up to **30 days**: it can stake, but can
   never send your coins. Anyone who can use your computer while it is running
@@ -290,7 +290,7 @@ back at once.
 
 **Watching it**
 
-- PEC Wallet: the Home page's Staking card shows the wallet's status in
+- Pectara Wallet: the Home page's Staking card shows the wallet's status in
   words, the coins taking part and blocks staked. The Transactions list
   shows rewards as **staked**.
 - `pec-cli getstakinginfo`: the same, and why not if it is not staking (not
@@ -339,7 +339,7 @@ Spending younger coins instead loses only 0.4 PEC of weight
 Spend younger coins instead and keep your aged coins? [Y/n]
 ```
 
-PEC Wallet shows the same warning and a "Keep my aged coins" box when sending.
+Pectara Wallet shows the same warning and a "Keep my aged coins" box when sending.
 Without a terminal, `pec-cli send ADDRESS AMOUNT true null true` sends with
 younger coins first.
 
@@ -353,7 +353,7 @@ To see what happened:
 |---|---|
 | `pec-cli listtransactions` | Your last 10 transactions: mined, received, sent, and names bought, changed or given away (`listtransactions 50` for more; `listtransactions 10 10` for the 10 before the newest 10). Payments to your names say which name they came through. |
 | `pec-cli gettransaction <txid>` | One transaction: in which block, amounts, addresses and fee |
-| `pec-cli listunspent` | Each of your coins separately, when mined ones become spendable, and how much staking weight each has built up (PEC Wallet: Coins tab) |
+| `pec-cli listunspent` | Each of your coins separately, when mined ones become spendable, and how much staking weight each has built up (Pectara Wallet: Coins tab) |
 
 ## 6. Buy a name
 
@@ -394,6 +394,8 @@ Once it is yours:
 | `pec-cli setnamedetail kay x @kay_pec` | Sets one of the name's details (here your X account); an empty value `""` removes it |
 | `pec-cli setnamedetail kay pay new` | Gives the name a new payment address (Silent Payments) of its own |
 | `pec-cli givename kay tpec1p...` | Gives the name to someone else (asks first; see below) |
+| `pec-cli renewname kay` | Renews the name for a year (1 PEC; asks first; see "Names expire") |
+| `pec-cli releasename kay` | Gives the name up for good (asks first; see "Names expire") |
 | `pec-cli buyname kay 5000` | Offers to buy someone's name (see below) |
 | `pec-cli sellname <offer>` | Accepts an offer for one of your names (see below) |
 
@@ -403,6 +405,34 @@ Silent Payments address, so each payment goes to a new one-off address that
 only your wallet recognises. Nobody can see how much @kay has received. Each
 name gets a Silent Payments address of its own, so nobody can tell that two
 of your names belong to the same person.
+
+### Names expire unless renewed
+
+From the block set in the release that brings this rule, a name lasts **one
+year** from the block it was registered or last renewed, and existing names a
+year from that block. Renew it with `pec-cli renewname kay` (1 PEC, plus the
+0.0004 PEC fee). You can renew at any time, but a renewal always lasts one
+year from now, not one year on top of the old date, so renewing very early
+gives up the time that was left (pec-cli tells you the dates first).
+
+- Your wallet reminds you in `pec-cli listnames` and `getname`, and pecd logs
+  a warning, **60, 30 and 7 days** before a name expires.
+- After it expires there is a **30-day grace period**: only you can renew
+  it, the name still works, and anyone paying it is warned. Nothing else
+  (details, giving it away) works until you renew.
+- If you do not renew, the name is released and nobody owns it; after
+  another **30 days** anyone can claim it. The 1 PEC locked with it is never
+  returned.
+- `pec-cli releasename kay` gives a name up early, with the same 30 days
+  before anyone can claim it. The locked coins are not returned, payments to
+  the name stop, and it cannot be undone.
+- In Pectara Wallet, **Your names** shows a warning under a name that is about to
+  expire, with a **Renew…** button. **Release…** is at the bottom of the
+  name's **Settings**. Both say in plain words what will happen and what it
+  costs before you confirm (and ask for your passphrase if the wallet is
+  locked).
+- `pec-cli send @kay 10` refuses a name that has no owner, and warns you if
+  the name is in its grace period or was registered less than 30 days ago.
 
 ### Give a name to someone
 
@@ -425,7 +455,7 @@ of your names belong to the same person.
    name goes with it, its other details (X, Telegram…) stay, and you pay a
    0.0004 PEC fee. This cannot be undone. Until it is in a block, your
    `pec-cli listnames` shows the name as "being given away"; then it is
-   gone from your list. (In PEC Wallet: Names tab, the same.)
+   gone from your list. (In Pectara Wallet: Names tab, the same.)
 3. **The new owner**, once it is in a block (about a minute; `pec-cli
    listnames` shows it), sets where payments to the name go:
 
@@ -469,7 +499,7 @@ without being paid.
    name go: `pec-cli setnamedetail kay pay new`. (The seller's details,
    such as X or Telegram, are not passed on.)
 
-**In PEC Wallet** (Names tab): look up the name, type your price and
+**In Pectara Wallet** (Names tab): look up the name, type your price and
 press **Make an offer…**; the offer text is shown with a copy button. To
 sell, paste an offer into **Sell a name** and press **Check offer…**. An
 offer you made appears in your names list with **Cancel offer…**. If the
@@ -597,7 +627,7 @@ programs, so updates never touch it:
 | Windows | `%LOCALAPPDATA%\PECCoin` (`C:\Users\<you>\AppData\Local\PECCoin`) |
 
 To use another folder (for example a bigger disk), start pecd with
-`--datadir FOLDER`, and give pec-cli, pec-miner and PEC Wallet the same
+`--datadir FOLDER`, and give pec-cli, pec-miner and Pectara Wallet the same
 `--datadir FOLDER`. Only you can open the folder: it holds your wallet.
 
 | Path | What it is |
